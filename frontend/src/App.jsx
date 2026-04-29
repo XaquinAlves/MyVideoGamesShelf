@@ -1,0 +1,66 @@
+import { useEffect, useState } from "react";
+
+export default function App() {
+  const [status, setStatus] = useState({ loading: true });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadStatus() {
+      try {
+        const response = await fetch("/api/health/");
+        const data = await response.json();
+        if (!cancelled) {
+          setStatus({ loading: false, ok: true, data });
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setStatus({
+            loading: false,
+            ok: false,
+            error: "The API is not reachable through nginx.",
+          });
+        }
+      }
+    }
+
+    loadStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <main className="app-shell">
+      <section className="hero">
+        <p className="eyebrow">Docker Compose Stack</p>
+        <h1>My Video Games Shelf</h1>
+        <p className="summary">
+          React is served by nginx, Django answers under <code>/api/</code>,
+          PostgreSQL persists the data and pgAdmin is available for database
+          inspection.
+        </p>
+        <div className="status-card">
+          <span className={`status-dot ${status.ok ? "ok" : ""}`} />
+          <div>
+            <strong>
+              {status.loading
+                ? "Checking API connection..."
+                : status.ok
+                  ? "API connection is healthy"
+                  : "API connection failed"}
+            </strong>
+            <p>
+              {status.loading
+                ? "The frontend is waiting for Django to answer."
+                : status.ok
+                  ? `Response: ${JSON.stringify(status.data)}`
+                  : status.error}
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}

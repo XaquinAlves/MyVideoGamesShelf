@@ -15,10 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import include, path
+
+
+def api_health(request):
+    return JsonResponse({"status": "ok", "service": "django"})
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("api/health/", api_health),
     # Even when using headless, the third-party provider endpoints are stil
     # needed for handling e.g. the OAuth handshake. The account views
     # can be disabled using `HEADLESS_ONLY = True`.
