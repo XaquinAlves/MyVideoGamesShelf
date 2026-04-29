@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export default function App() {
-  const [status, setStatus] = useState({ loading: true });
+  const [status, setStatus] = useState({ loading: true, ok: false, error: ""});
 
   useEffect(() => {
     let cancelled = false;
@@ -14,9 +14,9 @@ export default function App() {
         }
         const data = await response.json();
         if (!cancelled) {
-          setStatus({ loading: false, ok: true, data });
+          setStatus({ loading: false, ok: true, data: data });
         }
-      } catch (error) {
+      } catch (err) {
         if (cancelled) {
           return;
         }
