@@ -6,14 +6,28 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
 
-    async function loadStatus() {
+    async function loadStatus(attempt = 1) {
       try {
         const response = await fetch("/api/health/");
+        if (!response.ok) {
+          throw new Error(`Unexpected status: ${response.status}`);
+        }
         const data = await response.json();
         if (!cancelled) {
           setStatus({ loading: false, ok: true, data });
         }
       } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        if (attempt < 5) {
+          window.setTimeout(() => {
+            loadStatus(attempt + 1);
+          }, 1500);
+          return;
+        }
+
         if (!cancelled) {
           setStatus({
             loading: false,
