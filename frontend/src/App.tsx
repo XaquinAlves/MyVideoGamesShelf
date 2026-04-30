@@ -1,7 +1,21 @@
 import { useEffect, useState } from "react";
 
+type HealthResponse = {
+  status: string;
+  service: string;
+};
+
+type AppStatus =
+  | { loading: true; ok: false; error: string; data?: undefined }
+  | { loading: false; ok: true; error: string; data: HealthResponse }
+  | { loading: false; ok: false; error: string; data?: undefined };
+
 export default function App() {
-  const [status, setStatus] = useState({ loading: true, ok: false, error: ""});
+  const [status, setStatus] = useState<AppStatus>({
+    loading: true,
+    ok: false,
+    error: "",
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -12,11 +26,11 @@ export default function App() {
         if (!response.ok) {
           throw new Error(`Unexpected status: ${response.status}`);
         }
-        const data = await response.json();
+        const data: HealthResponse = await response.json();
         if (!cancelled) {
-          setStatus({ loading: false, ok: true, data: data });
+          setStatus({ loading: false, ok: true, error: "", data });
         }
-      } catch (err) {
+      } catch {
         if (cancelled) {
           return;
         }
